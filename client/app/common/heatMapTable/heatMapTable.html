@@ -1,0 +1,13 @@
+<div class="heat-map-wrapper">
+	
+	<h3>Heat map</h3>
+
+	<table>
+		<tbody>
+			<tr ng-repeat="row in data track by $index">
+				<td ng-repeat="col in row.cols">{{::col.value}}</td>
+			</tr>
+		</tbody>
+	</table>
+
+</div>

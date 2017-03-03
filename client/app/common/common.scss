@@ -10,9 +10,14 @@ $darkTextColor:  #212121;
 
 body {
    height: 100%;
-   // browsers default to 16px for font-size,
-   // so setting top-level font-size to 62.5%
-   // scales 1rem to equal 10px.
-   font: 62.5% 'Roboto', sans-serif;
+   font: 1em 'Roboto', sans-serif;
 }
 
+table {
+	td {
+		padding: .5em
+	}
+	tr:nth-child(even) {
+		background-color: #D3ECF5;
+	}
+}
