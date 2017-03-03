@@ -8,6 +8,10 @@ function Queue($q, $http) {
 
 		const DEFAULT_MAX_CALLS = 6;
 
+		const REQUEST_STATUS_NOT_STARTED = 0;
+		const REQUEST_STATUS_PENDING = 1;
+		const REQUEST_STATUS_COMPLETED = 2;
+
 		const queue = {
 				Queue: {
 					queueConfig: {
@@ -17,18 +21,18 @@ function Queue($q, $http) {
 					maxCalls: passedConfig.maxCalls || DEFAULT_MAX_CALLS,
 					doneCallback: passedConfig.doneCallback || angular.noop,
 					callNext: function() {
-						let conf = this.getNextFromQueue();
-						if (conf) {
-							return conf.call();
+						let next = this.getNextFromQueue();
+						if (next) {
+							return next.call();
 						} else {
 							this.hasMore = false;
 						}
 					},
 					getNextFromQueue: function() {
-						return _.find(this.queue, {status: 0}) || null;
+						return _.find(this.queue, {status: REQUEST_STATUS_NOT_STARTED}) || null;
 					},
 					havePending: function() {
-						return _.find(this.queue, {status: 1}) || null;
+						return _.find(this.queue, {status: REQUEST_STATUS_PENDING}) || null;
 					},
 					done: function() {
 						this.queue = [];
@@ -44,7 +48,7 @@ function Queue($q, $http) {
 						url: url || '',
 						params: params || {},
 						call: call.bind(this),
-						status: 0,
+						status: REQUEST_STATUS_NOT_STARTED,
 						method: 'GET',
 						defer: $q.defer()
 					}
@@ -58,7 +62,7 @@ function Queue($q, $http) {
 					}
 
 					function call() {
-						request.status = 1;
+						request.status = REQUEST_STATUS_PENDING;
 						this.queueConfig.pendingCount++;
 
 						let delay = (Math.random() * (5 - 2)).toFixed(3) * 1000;
@@ -74,7 +78,7 @@ function Queue($q, $http) {
 						}, (error) => {
 							request.defer.reject(error);
 						}).finally(() => {
-							request.status = 2;
+							request.status = REQUEST_STATUS_COMPLETED;
 							this.queueConfig.pendingCount--;
 
 							if (this.queueConfig.hasMore) {
